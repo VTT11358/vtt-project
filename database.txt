@@ -1,0 +1,440 @@
+-- =========================================================
+-- LAPTOP STORE DATABASE
+-- PHP 8.2 + MariaDB 10.4
+-- =========================================================
+
+SET FOREIGN_KEY_CHECKS = 0;
+
+
+-- =========================================================
+-- 1. USERS
+-- =========================================================
+
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    phone VARCHAR(20),
+    address VARCHAR(255),
+    avatar VARCHAR(255),
+    role VARCHAR(20) NOT NULL DEFAULT 'customer',
+    status TINYINT NOT NULL DEFAULT 1,
+    email_verified TINYINT(1) NOT NULL DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    UNIQUE KEY unique_email (email)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+-- =========================================================
+-- 2. CATEGORIES
+-- =========================================================
+
+CREATE TABLE categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    slug VARCHAR(150),
+    description TEXT,
+    image VARCHAR(255),
+    status TINYINT NOT NULL DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    UNIQUE KEY unique_category_slug (slug)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+-- =========================================================
+-- 3. BRANDS
+-- =========================================================
+
+CREATE TABLE brands (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    slug VARCHAR(150),
+    logo VARCHAR(255),
+    description TEXT,
+    status TINYINT NOT NULL DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    UNIQUE KEY unique_brand_slug (slug)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+-- =========================================================
+-- 4. PRODUCTS
+-- =========================================================
+
+CREATE TABLE products (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    category_id INT NOT NULL,
+    brand_id INT NOT NULL,
+
+    name VARCHAR(255) NOT NULL,
+    slug VARCHAR(255),
+
+    price DECIMAL(15,2) NOT NULL DEFAULT 0,
+    sale_price DECIMAL(15,2) DEFAULT NULL,
+
+    quantity INT NOT NULL DEFAULT 0,
+    sold_quantity INT NOT NULL DEFAULT 0,
+
+    image VARCHAR(255),
+
+    cpu VARCHAR(150),
+    ram VARCHAR(100),
+    storage VARCHAR(150),
+    screen VARCHAR(150),
+    gpu VARCHAR(150),
+    operating_system VARCHAR(150),
+    weight VARCHAR(100),
+    color VARCHAR(100),
+
+    description TEXT,
+
+    is_featured TINYINT NOT NULL DEFAULT 0,
+    is_bestseller TINYINT NOT NULL DEFAULT 0,
+    is_active TINYINT NOT NULL DEFAULT 1,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    UNIQUE KEY unique_product_slug (slug),
+
+    KEY idx_category (category_id),
+    KEY idx_brand (brand_id),
+    KEY idx_price (price),
+
+    CONSTRAINT fk_product_category
+        FOREIGN KEY (category_id)
+        REFERENCES categories(id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+
+    CONSTRAINT fk_product_brand
+        FOREIGN KEY (brand_id)
+        REFERENCES brands(id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+-- =========================================================
+-- 5. PRODUCT IMAGES
+-- =========================================================
+
+CREATE TABLE product_images (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    product_id INT NOT NULL,
+
+    image VARCHAR(255) NOT NULL,
+    sort_order INT NOT NULL DEFAULT 0,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    KEY idx_product_images (product_id),
+
+    CONSTRAINT fk_product_images_product
+        FOREIGN KEY (product_id)
+        REFERENCES products(id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+-- =========================================================
+-- 6. POSTS / BÀI VIẾT
+-- =========================================================
+
+CREATE TABLE posts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    author_id INT NOT NULL,
+
+    title VARCHAR(255) NOT NULL,
+    slug VARCHAR(255),
+
+    image VARCHAR(255),
+    content LONGTEXT,
+
+    status TINYINT NOT NULL DEFAULT 1,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    UNIQUE KEY unique_post_slug (slug),
+
+    KEY idx_post_author (author_id),
+
+    CONSTRAINT fk_post_author
+        FOREIGN KEY (author_id)
+        REFERENCES users(id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+-- =========================================================
+-- 7. CART
+-- =========================================================
+
+CREATE TABLE cart (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    user_id INT NOT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    UNIQUE KEY unique_user_cart (user_id),
+
+    CONSTRAINT fk_cart_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+-- =========================================================
+-- 8. CART ITEMS
+-- =========================================================
+
+CREATE TABLE cart_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    cart_id INT NOT NULL,
+    product_id INT NOT NULL,
+
+    quantity INT NOT NULL DEFAULT 1,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    UNIQUE KEY unique_cart_product (cart_id, product_id),
+
+    KEY idx_cart_item_product (product_id),
+
+    CONSTRAINT fk_cart_item_cart
+        FOREIGN KEY (cart_id)
+        REFERENCES cart(id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_cart_item_product
+        FOREIGN KEY (product_id)
+        REFERENCES products(id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+-- =========================================================
+-- 9. ORDERS
+-- =========================================================
+
+CREATE TABLE orders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    user_id INT NOT NULL,
+
+    customer_name VARCHAR(100) NOT NULL,
+    phone VARCHAR(20) NOT NULL,
+    email VARCHAR(150),
+
+    address VARCHAR(255) NOT NULL,
+
+    note TEXT,
+
+    total_amount DECIMAL(15,2) NOT NULL DEFAULT 0,
+
+    payment_method VARCHAR(50) NOT NULL DEFAULT 'COD',
+    payment_status VARCHAR(30) NOT NULL DEFAULT 'pending',
+
+    status VARCHAR(30) NOT NULL DEFAULT 'pending',
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    KEY idx_order_user (user_id),
+    KEY idx_order_status (status),
+    KEY idx_order_created (created_at),
+
+    CONSTRAINT fk_order_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+-- =========================================================
+-- 10. ORDER ITEMS
+-- =========================================================
+
+CREATE TABLE order_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    order_id INT NOT NULL,
+    product_id INT NOT NULL,
+
+    product_name VARCHAR(255) NOT NULL,
+
+    price DECIMAL(15,2) NOT NULL DEFAULT 0,
+
+    quantity INT NOT NULL DEFAULT 1,
+
+    subtotal DECIMAL(15,2) NOT NULL DEFAULT 0,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    KEY idx_order_item_order (order_id),
+    KEY idx_order_item_product (product_id),
+
+    CONSTRAINT fk_order_item_order
+        FOREIGN KEY (order_id)
+        REFERENCES orders(id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_order_item_product
+        FOREIGN KEY (product_id)
+        REFERENCES products(id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+-- =========================================================
+-- 11. PAYMENTS
+-- =========================================================
+
+CREATE TABLE payments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    order_id INT NOT NULL,
+
+    transaction_code VARCHAR(100),
+
+    amount DECIMAL(15,2) NOT NULL DEFAULT 0,
+
+    payment_method VARCHAR(50) NOT NULL,
+
+    status VARCHAR(30) NOT NULL DEFAULT 'pending',
+
+    paid_at DATETIME NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    KEY idx_payment_order (order_id),
+    KEY idx_payment_transaction (transaction_code),
+
+    CONSTRAINT fk_payment_order
+        FOREIGN KEY (order_id)
+        REFERENCES orders(id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+-- =========================================================
+-- 12. VNPAY PAYMENT INTENTS
+-- =========================================================
+
+CREATE TABLE vnpay_payment_intents (
+    transaction_code VARCHAR(100) PRIMARY KEY,
+
+    user_id INT NOT NULL,
+    order_id INT NULL,
+    order_data LONGTEXT NOT NULL,
+    cart_items LONGTEXT NOT NULL,
+    amount DECIMAL(15,2) NOT NULL,
+    status VARCHAR(30) NOT NULL DEFAULT 'pending',
+    expires_at DATETIME NOT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    UNIQUE KEY unique_vnpay_intent_order (order_id),
+    KEY idx_vnpay_intent_user (user_id),
+    KEY idx_vnpay_intent_status_expiry (status, expires_at),
+
+    CONSTRAINT fk_vnpay_intent_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_vnpay_intent_order
+        FOREIGN KEY (order_id)
+        REFERENCES orders(id)
+        ON UPDATE CASCADE
+        ON DELETE SET NULL
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+-- =========================================================
+-- 13. CONTACTS
+-- =========================================================
+
+CREATE TABLE contacts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL,
+    phone VARCHAR(20),
+
+    subject VARCHAR(255),
+    message TEXT,
+
+    status VARCHAR(30) NOT NULL DEFAULT 'new',
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+SET FOREIGN_KEY_CHECKS = 1;
+
+
+
+
+CREATE TABLE IF NOT EXISTS email_change_tokens (
+    user_id INT(11) NOT NULL PRIMARY KEY,
+    new_email VARCHAR(150) NOT NULL,
+    token_hash CHAR(64) NOT NULL UNIQUE,
+    expires_at DATETIME NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+CREATE TABLE email_verification_tokens (
+    user_id INT(11) NOT NULL PRIMARY KEY,
+    token_hash CHAR(64) NOT NULL UNIQUE,
+    expires_at DATETIME NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+CREATE TABLE password_reset_tokens (
+    user_id INT(11) NOT NULL PRIMARY KEY,
+    token_hash CHAR(64) NOT NULL UNIQUE,
+    expires_at DATETIME NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+

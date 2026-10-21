@@ -1,0 +1,6 @@
+/config/auth.local.php
+/config/vnpay.php
+/uploads/posts/*
+!/uploads/posts/.gitkeep
+/uploads/products/*
+!/uploads/products/.gitkeep
