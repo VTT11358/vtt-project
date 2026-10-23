@@ -15,14 +15,21 @@ $status = (int) ($post["status"] ?? 1);
 $image = $post["image"] ?? "";
 ?>
 
-<div class="container py-4">
-    <div class="mb-4">
-        <h2><?= $isEditing ? "Cập nhật bài viết" : "Thêm bài viết" ?></h2>
-        <p class="text-muted">
-            <?= $isEditing
-                ? "Chỉnh sửa nội dung bài viết. Để trống ảnh nếu không muốn thay đổi."
-                : "Nhập tiêu đề, nội dung và ảnh đại diện cho bài viết." ?>
-        </p>
+<main class="container py-4 post-management">
+    <div class="post-page-header">
+        <div>
+            <span class="post-eyebrow">NỘI DUNG CỬA HÀNG</span>
+            <h1><?= $isEditing ? "Cập nhật bài viết" : "Thêm bài viết" ?></h1>
+            <p>
+                <?= $isEditing
+                    ? "Chỉnh sửa nội dung bài viết. Để trống ảnh nếu không muốn thay đổi."
+                    : "Nhập tiêu đề, nội dung và ảnh đại diện cho bài viết." ?>
+            </p>
+        </div>
+        <a href="<?= htmlspecialchars($baseUrl . '&action=index', ENT_QUOTES, "UTF-8") ?>"
+           class="post-secondary-link">
+            <span aria-hidden="true">←</span> Quay lại danh sách
+        </a>
     </div>
 
     <?php if (!empty($error)): ?>
@@ -31,9 +38,15 @@ $image = $post["image"] ?? "";
         </div>
     <?php endif; ?>
 
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <form
+    <section class="post-form-panel">
+        <div class="post-form-intro">
+            <span class="post-form-icon" aria-hidden="true"><?= $isEditing ? "✎" : "＋" ?></span>
+            <div>
+                <h2>Nội dung bài viết</h2>
+                <p>Điền tiêu đề, nội dung và thông tin xuất bản.</p>
+            </div>
+        </div>
+        <form class="post-form"
                 method="POST"
                 action="<?= htmlspecialchars($formUrl, ENT_QUOTES, "UTF-8") ?>"
                 enctype="multipart/form-data"
@@ -69,7 +82,7 @@ $image = $post["image"] ?? "";
                         value="<?= htmlspecialchars($slug, ENT_QUOTES, "UTF-8") ?>"
                         placeholder="Để trống để tự tạo từ tiêu đề"
                     >
-                    <div class="form-text">
+                    <div class="post-form-help">
                         Dùng trong đường dẫn bài viết. Có thể để trống khi thêm mới.
                     </div>
                 </div>
@@ -85,7 +98,7 @@ $image = $post["image"] ?? "";
                         name="image"
                         accept="image/jpeg,image/png,image/webp"
                     >
-                    <div class="form-text">
+                    <div class="post-form-help">
                         JPG, PNG hoặc WEBP, tối đa 5 MB.
                         <?php if ($isEditing): ?>
                             Để trống nếu giữ ảnh hiện tại.
@@ -97,8 +110,7 @@ $image = $post["image"] ?? "";
                             <img
                                 src="<?= BASE_URL . htmlspecialchars($image, ENT_QUOTES, "UTF-8") ?>"
                                 alt="Ảnh bài viết"
-                                style="max-width: 220px; max-height: 140px; object-fit: cover;"
-                                class="rounded border"
+                                class="post-image-preview"
                             >
                         </div>
                     <?php endif; ?>
@@ -128,16 +140,17 @@ $image = $post["image"] ?? "";
                     </select>
                 </div>
 
-                <button type="submit" class="btn btn-primary">
-                    <?= $isEditing ? "Lưu thay đổi" : "Thêm bài viết" ?>
-                </button>
+                <div class="post-form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <?= $isEditing ? "Lưu thay đổi" : "Thêm bài viết" ?>
+                    </button>
 
-                <a href="<?= htmlspecialchars($baseUrl . '&action=index') ?>" class="btn btn-secondary">
-                    Hủy
-                </a>
-            </form>
-        </div>
-    </div>
-</div>
+                    <a href="<?= htmlspecialchars($baseUrl . '&action=index') ?>" class="btn btn-secondary post-cancel-button">
+                        Hủy
+                    </a>
+                </div>
+        </form>
+    </section>
+</main>
 
 <?php require __DIR__ . "/../../layouts/admin_footer.php"; ?>

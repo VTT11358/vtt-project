@@ -59,13 +59,15 @@ for ($monthNumber = 1; $monthNumber <= 12; $monthNumber++) {
 }
 ?>
 
-<main class="container py-4 order-statistics">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+<div class="container py-4 order-statistics">
+    <div class="stats-page-header">
         <div>
-            <h1 class="mb-1">Thống kê đơn hàng</h1>
-            <p class="text-muted mb-0">Tổng quan đơn hàng và thanh toán theo khoảng thời gian.</p>
+            <span class="stats-eyebrow">TỔNG QUAN KINH DOANH</span>
+            <h1>Thống kê đơn hàng</h1>
+            <p>Theo dõi doanh thu, trạng thái đơn hàng và tình hình thanh toán.</p>
         </div>
-        <a href="<?= BASE_URL ?>index.php?controller=adminOrder&action=index" class="btn btn-outline-secondary">
+        <a href="<?= BASE_URL ?>index.php?controller=adminOrder&action=index" class="stats-orders-link">
+            <span aria-hidden="true">↗</span>
             Danh sách đơn hàng
         </a>
     </div>
@@ -81,9 +83,16 @@ for ($monthNumber = 1; $monthNumber <= 12; $monthNumber++) {
         </div>
     <?php endif; ?>
 
-    <form id="statistics-filter" method="GET" action="<?= BASE_URL ?>index.php" class="stats-filter card mb-4">
+    <form id="statistics-filter" method="GET" action="<?= BASE_URL ?>index.php" class="stats-filter">
         <input type="hidden" name="controller" value="adminOrder">
         <input type="hidden" name="action" value="stats">
+        <div class="stats-filter-heading">
+            <div>
+                <h2>Lọc theo thời gian</h2>
+                <p>Chọn khoảng ngày để cập nhật các chỉ số bên dưới.</p>
+            </div>
+            <span class="stats-filter-icon" aria-hidden="true">⌑</span>
+        </div>
         <div class="stats-filter-fields">
             <div>
                 <label class="form-label" for="date-from">Từ ngày</label>
@@ -101,26 +110,45 @@ for ($monthNumber = 1; $monthNumber <= 12; $monthNumber++) {
 
     <section class="stats-cards" aria-label="Tổng quan đơn hàng">
         <article class="card stats-card">
-            <span class="stats-card-label">Tổng đơn hàng</span>
+            <div class="stats-card-top">
+                <span class="stats-card-label">Tổng đơn hàng</span>
+                <span class="stats-card-icon stats-icon-orders" aria-hidden="true">▤</span>
+            </div>
             <strong><?= number_format($totalOrders) ?></strong>
+            <span class="stats-card-note">Trong khoảng thời gian đã chọn</span>
         </article>
         <article class="card stats-card">
-            <span class="stats-card-label">Đơn hoàn thành</span>
+            <div class="stats-card-top">
+                <span class="stats-card-label">Đơn hoàn thành</span>
+                <span class="stats-card-icon stats-icon-completed" aria-hidden="true">✓</span>
+            </div>
             <strong><?= number_format($completedOrders) ?></strong>
+            <span class="stats-card-note">Đã giao thành công</span>
         </article>
         <article class="card stats-card">
-            <span class="stats-card-label">Đơn đã hủy</span>
+            <div class="stats-card-top">
+                <span class="stats-card-label">Đơn đã hủy</span>
+                <span class="stats-card-icon stats-icon-cancelled" aria-hidden="true">×</span>
+            </div>
             <strong><?= number_format($cancelledOrders) ?></strong>
+            <span class="stats-card-note">Đơn hàng bị hủy</span>
         </article>
         <article class="card stats-card stats-revenue">
-            <span class="stats-card-label">Doanh thu đơn hoàn thành</span>
+            <div class="stats-card-top">
+                <span class="stats-card-label">Doanh thu hoàn thành</span>
+                <span class="stats-card-icon stats-icon-revenue" aria-hidden="true">₫</span>
+            </div>
             <strong><?= number_format($completedRevenue, 0, ",", ".") ?> đ</strong>
+            <span class="stats-card-note">Từ các đơn đã hoàn thành</span>
         </article>
         <a class="card stats-card stats-inventory"
             href="<?= BASE_URL ?>index.php?controller=adminProduct&action=inventory">
-            <span class="stats-card-label">Sản phẩm còn tồn</span>
+            <div class="stats-card-top">
+                <span class="stats-card-label">Sản phẩm còn tồn</span>
+                <span class="stats-card-icon stats-icon-inventory" aria-hidden="true">▣</span>
+            </div>
             <strong><?= number_format($inventorySummary["unit_count"] ?? 0) ?> sản phẩm</strong>
-            <span class="stats-inventory-detail">
+            <span class="stats-card-note">
                 Trong <?= number_format($inventorySummary["product_count"] ?? 0) ?> mặt hàng
             </span>
         </a>
@@ -133,25 +161,29 @@ for ($monthNumber = 1; $monthNumber <= 12; $monthNumber++) {
                 <p class="text-muted mb-0">Chọn tháng hoặc quý để làm nổi bật kỳ cần xem.</p>
             </div>
             <div class="stats-chart-controls">
-                <label class="form-label" for="chart-year">Năm</label>
-                <select class="form-select" id="chart-year" name="chart_year"
-                    form="statistics-filter" data-submit-form>
-                    <?php foreach ($chartYears as $yearOption): ?>
-                        <option value="<?= $yearOption ?>" <?= $chartYear === $yearOption ? "selected" : "" ?>>
-                            <?= $yearOption ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <label class="form-label" for="chart-period-filter">Lọc biểu đồ</label>
-                <select class="form-select" id="chart-period-filter" data-chart-filter>
-                    <option value="">Cả năm</option>
-                    <?php for ($month = 1; $month <= 12; $month++): ?>
-                        <option value="month-<?= $month ?>">Tháng <?= $month ?></option>
-                    <?php endfor; ?>
-                    <?php for ($quarter = 1; $quarter <= 4; $quarter++): ?>
-                        <option value="quarter-<?= $quarter ?>">Quý <?= $quarter ?></option>
-                    <?php endfor; ?>
-                </select>
+                <div>
+                    <label class="form-label" for="chart-year">Năm</label>
+                    <select class="form-select" id="chart-year" name="chart_year"
+                        form="statistics-filter" data-submit-form>
+                        <?php foreach ($chartYears as $yearOption): ?>
+                            <option value="<?= $yearOption ?>" <?= $chartYear === $yearOption ? "selected" : "" ?>>
+                                <?= $yearOption ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label" for="chart-period-filter">Lọc biểu đồ</label>
+                    <select class="form-select" id="chart-period-filter" data-chart-filter>
+                        <option value="">Cả năm</option>
+                        <?php for ($month = 1; $month <= 12; $month++): ?>
+                            <option value="month-<?= $month ?>">Tháng <?= $month ?></option>
+                        <?php endfor; ?>
+                        <?php for ($quarter = 1; $quarter <= 4; $quarter++): ?>
+                            <option value="quarter-<?= $quarter ?>">Quý <?= $quarter ?></option>
+                        <?php endfor; ?>
+                    </select>
+                </div>
             </div>
         </div>
         <div class="card-body">
@@ -259,6 +291,6 @@ for ($monthNumber = 1; $monthNumber <= 12; $monthNumber++) {
         <?= htmlspecialchars(date("d/m/Y", strtotime($dateFrom)), ENT_QUOTES, "UTF-8") ?>
         – <?= htmlspecialchars(date("d/m/Y", strtotime($dateTo)), ENT_QUOTES, "UTF-8") ?>
     </p>
-</main>
+</div>
 
 <?php require __DIR__ . "/../../layouts/admin_footer.php"; ?>

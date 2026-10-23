@@ -31,9 +31,15 @@ class AdminOrder
         $this->conn = $conn;
     }
 
-    public function getTotalCount($search = "", $status = "", $paymentStatus = "")
+    public function getTotalCount($search = "", $status = "", $paymentStatus = "", $dateFrom = "", $dateTo = "")
     {
-        [$whereSql, $types, $params] = $this->buildFilters($search, $status, $paymentStatus);
+        [$whereSql, $types, $params] = $this->buildFilters(
+            $search,
+            $status,
+            $paymentStatus,
+            $dateFrom,
+            $dateTo
+        );
 
         $sql = "SELECT COUNT(*) AS total FROM orders o {$whereSql}";
         $stmt = $this->conn->prepare($sql);
@@ -134,12 +140,26 @@ class AdminOrder
         return $rows;
     }
 
-    public function getPaginated($limit, $offset, $search = "", $status = "", $paymentStatus = "")
+    public function getPaginated(
+        $limit,
+        $offset,
+        $search = "",
+        $status = "",
+        $paymentStatus = "",
+        $dateFrom = "",
+        $dateTo = ""
+    )
     {
         $limit = max(1, (int) $limit);
         $offset = max(0, (int) $offset);
 
-        [$whereSql, $types, $params] = $this->buildFilters($search, $status, $paymentStatus);
+        [$whereSql, $types, $params] = $this->buildFilters(
+            $search,
+            $status,
+            $paymentStatus,
+            $dateFrom,
+            $dateTo
+        );
 
         $sql = "SELECT o.id, o.user_id, o.customer_name, o.phone, o.email,
                        o.address, o.total_amount, o.payment_method, o.payment_status,
@@ -335,7 +355,7 @@ class AdminOrder
         $update->close();
     }
 
-    private function buildFilters($search, $status, $paymentStatus): array
+    private function buildFilters($search, $status, $paymentStatus, $dateFrom = "", $dateTo = ""): array
     {
         $where = [];
         $types = "";
@@ -344,6 +364,8 @@ class AdminOrder
         $search = trim((string) $search);
         $status = trim((string) $status);
         $paymentStatus = trim((string) $paymentStatus);
+        $dateFrom = trim((string) $dateFrom);
+        $dateTo = trim((string) $dateTo);
 
         if ($search !== "") {
             if (ctype_digit($search)) {
@@ -374,6 +396,18 @@ class AdminOrder
             $where[] = "o.payment_status = ?";
             $types .= "s";
             $params[] = $paymentStatus;
+        }
+
+        if ($dateFrom !== "") {
+            $where[] = "o.created_at >= ?";
+            $types .= "s";
+            $params[] = $dateFrom . " 00:00:00";
+        }
+
+        if ($dateTo !== "") {
+            $where[] = "o.created_at < DATE_ADD(?, INTERVAL 1 DAY)";
+            $types .= "s";
+            $params[] = $dateTo;
         }
 
         $whereSql = $where ? ("WHERE " . implode(" AND ", $where)) : "";

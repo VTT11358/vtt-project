@@ -1,8 +1,17 @@
 
 <?php require __DIR__ . "/../../layouts/admin_header.php"; ?>
 
-<div class="container py-4">
-    <h2 class="mb-4">Thêm sản phẩm laptop</h2>
+<main class="container py-4 product-management">
+    <div class="product-page-header">
+        <div>
+            <span class="product-eyebrow">DANH MỤC KINH DOANH</span>
+            <h1>Thêm sản phẩm laptop</h1>
+            <p>Nhập thông tin sản phẩm và thông số kỹ thuật để đăng bán.</p>
+        </div>
+        <a href="<?= BASE_URL ?>index.php?controller=adminProduct&action=products" class="product-secondary-link">
+            <span aria-hidden="true">←</span> Quay lại danh sách
+        </a>
+    </div>
 
     <?php if (!empty($error)): ?>
         <div class="alert alert-danger">
@@ -10,9 +19,17 @@
         </div>
     <?php endif; ?>
 
-    <form method="POST"
-          action="<?= BASE_URL ?>index.php?controller=adminProduct&action=storeProduct"
-          enctype="multipart/form-data">
+    <section class="product-form-panel">
+        <div class="product-form-intro">
+            <span class="product-form-icon" aria-hidden="true">＋</span>
+            <div>
+                <h2>Thông tin sản phẩm</h2>
+                <p>Các trường có dấu * là bắt buộc.</p>
+            </div>
+        </div>
+        <form class="product-form" method="POST"
+              action="<?= BASE_URL ?>index.php?controller=adminProduct&action=storeProduct"
+              enctype="multipart/form-data">
 
         <input type="hidden" name="csrf_token"
                value="<?= htmlspecialchars($_SESSION["csrf_token"]) ?>">
@@ -151,15 +168,18 @@
             </div>
         </div>
 
-        <button type="submit" class="btn btn-primary">
-            Lưu sản phẩm
-        </button>
+            <div class="product-form-actions">
+                <button type="submit" class="btn btn-primary">
+                    Lưu sản phẩm
+                </button>
 
-        <a href="<?= BASE_URL ?>index.php?controller=adminProduct&action=products"
-           class="btn btn-secondary">
-            Quay lại
-        </a>
-    </form>
-</div>
+                <a href="<?= BASE_URL ?>index.php?controller=adminProduct&action=products"
+                   class="btn btn-secondary product-cancel-button">
+                    Quay lại
+                </a>
+            </div>
+        </form>
+    </section>
+</main>
 
 <?php require __DIR__ . "/../../layouts/admin_footer.php"; ?>

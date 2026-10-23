@@ -4,8 +4,17 @@ require_once __DIR__ . "/../../../helpers/ProductImage.php";
 require __DIR__ . "/../../layouts/admin_header.php";
 ?>
 
-<div class="container py-4">
-    <h2>Sửa sản phẩm</h2>
+<main class="container py-4 product-management">
+    <div class="product-page-header">
+        <div>
+            <span class="product-eyebrow">DANH MỤC KINH DOANH</span>
+            <h1>Sửa sản phẩm</h1>
+            <p>Cập nhật giá bán, thông tin và hình ảnh sản phẩm.</p>
+        </div>
+        <a href="<?= BASE_URL ?>index.php?controller=adminProduct&action=products" class="product-secondary-link">
+            <span aria-hidden="true">←</span> Quay lại danh sách
+        </a>
+    </div>
 
     <?php if (!empty($error)): ?>
         <div class="alert alert-danger">
@@ -13,9 +22,17 @@ require __DIR__ . "/../../layouts/admin_header.php";
         </div>
     <?php endif; ?>
 
-    <form method="POST"
-          action="<?= BASE_URL ?>index.php?controller=adminProduct&action=updateProduct&id=<?= (int) $product["id"] ?>"
-          enctype="multipart/form-data">
+    <section class="product-form-panel">
+        <div class="product-form-intro">
+            <span class="product-form-icon" aria-hidden="true">✎</span>
+            <div>
+                <h2>Thông tin sản phẩm</h2>
+                <p>Chỉnh sửa thông tin và lưu thay đổi khi hoàn tất.</p>
+            </div>
+        </div>
+        <form class="product-form" method="POST"
+              action="<?= BASE_URL ?>index.php?controller=adminProduct&action=updateProduct&id=<?= (int) $product["id"] ?>"
+              enctype="multipart/form-data">
 
         <input type="hidden" name="csrf_token"
                value="<?= htmlspecialchars($_SESSION["csrf_token"]) ?>">
@@ -26,7 +43,7 @@ require __DIR__ . "/../../layouts/admin_header.php";
                    value="<?= htmlspecialchars($product["name"]) ?>">
         </div>
 
-        <div class="row">
+        <div class="row product-form-grid">
             <div class="col-md-6 mb-3">
                 <label class="form-label">Danh mục</label>
                 <select name="category_id" class="form-select" required>
@@ -86,7 +103,7 @@ require __DIR__ . "/../../layouts/admin_header.php";
         ];
         ?>
 
-        <div class="row">
+        <div class="row product-form-grid">
             <?php foreach ($fields as $field => $label): ?>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">
@@ -131,7 +148,7 @@ require __DIR__ . "/../../layouts/admin_header.php";
             Chọn ảnh đại diện mới nếu muốn thay đổi. Không thể xóa ảnh cuối cùng.
         </p>
 
-        <div class="row">
+        <div class="row product-image-gallery">
             <?php foreach ($images as $image): ?>
                 <div class="col-6 col-md-3 mb-4" id="image-<?= (int) $image["id"] ?>">
                     <img
@@ -169,11 +186,14 @@ require __DIR__ . "/../../layouts/admin_header.php";
             <small class="text-muted">Tối đa 10 ảnh mỗi lần, mỗi ảnh tối đa 5 MB.</small>
         </div>
 
-        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
-        <a href="<?= BASE_URL ?>index.php?controller=adminProduct&action=products"
-           class="btn btn-secondary">Quay lại</a>
-    </form>
-</div>
+            <div class="product-form-actions">
+                <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                <a href="<?= BASE_URL ?>index.php?controller=adminProduct&action=products"
+                   class="btn btn-secondary product-cancel-button">Quay lại</a>
+            </div>
+        </form>
+    </section>
+</main>
 
 <script>
 function deleteProductImage(productId, imageId) {

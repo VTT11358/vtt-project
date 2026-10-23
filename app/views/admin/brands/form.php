@@ -17,10 +17,17 @@ $description = $item["description"] ?? "";
 $status = (int) ($item["status"] ?? 1);
 ?>
 
-<div class="container py-4">
-    <div class="mb-4">
-        <h2><?= $isEditing ? "Cập nhật thương hiệu" : "Thêm thương hiệu" ?></h2>
-        <p class="text-muted">Nhập thông tin thương hiệu laptop.</p>
+<main class="container py-4 category-management brand-management">
+    <div class="category-page-header">
+        <div>
+            <span class="category-eyebrow">DANH MỤC KINH DOANH</span>
+            <h1><?= $isEditing ? "Cập nhật thương hiệu" : "Thêm thương hiệu" ?></h1>
+            <p>Nhập thông tin để quản lý các thương hiệu laptop trong cửa hàng.</p>
+        </div>
+        <a href="<?= htmlspecialchars($baseUrl . '&action=index', ENT_QUOTES, "UTF-8") ?>"
+           class="category-secondary-link">
+            <span aria-hidden="true">←</span> Quay lại danh sách
+        </a>
     </div>
 
     <?php if (!empty($error)): ?>
@@ -29,10 +36,16 @@ $status = (int) ($item["status"] ?? 1);
         </div>
     <?php endif; ?>
 
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <form method="POST"
-                  action="<?= htmlspecialchars($formUrl, ENT_QUOTES, "UTF-8") ?>">
+    <section class="category-form-panel">
+        <div class="category-form-intro">
+            <span class="category-form-icon" aria-hidden="true"><?= $isEditing ? "✎" : "＋" ?></span>
+            <div>
+                <h2>Thông tin thương hiệu</h2>
+                <p>Điền tên, đường dẫn và trạng thái hiển thị.</p>
+            </div>
+        </div>
+        <form class="category-form" method="POST"
+              action="<?= htmlspecialchars($formUrl, ENT_QUOTES, "UTF-8") ?>">
 
                 <input type="hidden" name="csrf_token"
                        value="<?= htmlspecialchars($_SESSION["csrf_token"] ?? "", ENT_QUOTES, "UTF-8") ?>">
@@ -61,6 +74,9 @@ $status = (int) ($item["status"] ?? 1);
                         required
                         value="<?= htmlspecialchars($slug, ENT_QUOTES, "UTF-8") ?>"
                         placeholder="asus">
+                    <div class="category-form-help">
+                        Slug dùng trong đường dẫn website, ví dụ: asus.
+                    </div>
                 </div>
 
                 <div class="mb-3">
@@ -84,17 +100,18 @@ $status = (int) ($item["status"] ?? 1);
                     </select>
                 </div>
 
-                <button type="submit" class="btn btn-primary">
-                    <?= $isEditing ? "Lưu thay đổi" : "Thêm thương hiệu" ?>
-                </button>
+                <div class="category-form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <?= $isEditing ? "Lưu thay đổi" : "Thêm thương hiệu" ?>
+                    </button>
 
-                <a href="<?= htmlspecialchars($baseUrl . '&action=index') ?>"
-                   class="btn btn-secondary">
-                    Hủy
-                </a>
-            </form>
-        </div>
-    </div>
-</div>
+                    <a href="<?= htmlspecialchars($baseUrl . '&action=index') ?>"
+                       class="btn btn-secondary category-cancel-button">
+                        Hủy
+                    </a>
+                </div>
+        </form>
+    </section>
+</main>
 
 <?php require __DIR__ . "/../../layouts/admin_footer.php"; ?>

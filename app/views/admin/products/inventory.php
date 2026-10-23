@@ -12,35 +12,39 @@ $paginationUrl = $paginationUrl ?? static function ($page) use ($search) {
 };
 ?>
 
-<main class="container py-4">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+<main class="container py-4 product-management">
+    <div class="product-page-header">
         <div>
-            <h1 class="mb-1">Sản phẩm còn tồn kho</h1>
-            <p class="text-muted mb-0">
+            <span class="product-eyebrow">THEO DÕI HÀNG HÓA</span>
+            <h1>Sản phẩm còn tồn kho</h1>
+            <p>
                 Tổng cộng <?= number_format($totalUnits) ?> sản phẩm trong <?= number_format($totalProducts) ?> mặt hàng.
             </p>
         </div>
-        <a href="<?= BASE_URL ?>index.php?controller=adminOrder&action=stats" class="btn btn-outline-secondary">
+        <a href="<?= BASE_URL ?>index.php?controller=adminOrder&action=stats" class="product-secondary-link">
+            <span aria-hidden="true">←</span>
             Quay lại thống kê
         </a>
     </div>
 
-    <form method="GET" action="<?= BASE_URL ?>index.php" class="d-flex flex-wrap gap-2 mb-3">
+    <form method="GET" action="<?= BASE_URL ?>index.php" class="product-search-panel">
         <input type="hidden" name="controller" value="adminProduct">
         <input type="hidden" name="action" value="inventory">
         <input type="search" name="q" class="form-control inventory-search"
+            aria-label="Tìm kiếm hàng tồn kho"
             placeholder="Tìm tên sản phẩm, danh mục hoặc thương hiệu..."
             value="<?= htmlspecialchars($search, ENT_QUOTES, "UTF-8") ?>">
-        <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+        <button type="submit" class="btn btn-primary product-search-button">Tìm kiếm</button>
         <?php if ($search !== ""): ?>
             <a href="<?= BASE_URL ?>index.php?controller=adminProduct&action=inventory"
-                class="btn btn-outline-secondary">Xóa tìm kiếm</a>
+                class="btn btn-outline-secondary product-clear-search">Xóa tìm kiếm</a>
         <?php endif; ?>
     </form>
 
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped align-middle">
-            <thead class="table-dark">
+    <section class="product-table-panel" aria-label="Danh sách hàng tồn kho">
+        <div class="table-responsive">
+        <table class="table align-middle product-table">
+            <thead>
                 <tr>
                     <th>Mã</th>
                     <th>Ảnh</th>
@@ -70,7 +74,7 @@ $paginationUrl = $paginationUrl ?? static function ($page) use ($search) {
                                 <?php if (!empty($product["image"])): ?>
                                     <img src="<?= htmlspecialchars(productImageUrl($product["image"]), ENT_QUOTES, "UTF-8") ?>"
                                         alt="<?= htmlspecialchars($product["name"] ?? "", ENT_QUOTES, "UTF-8") ?>"
-                                        width="64" height="48" class="inventory-image">
+                                        width="64" height="48" class="inventory-image product-table-image">
                                 <?php else: ?>
                                     <span class="text-muted">Chưa có ảnh</span>
                                 <?php endif; ?>
@@ -98,9 +102,9 @@ $paginationUrl = $paginationUrl ?? static function ($page) use ($search) {
                 <?php endif; ?>
             </tbody>
         </table>
-    </div>
+        </div>
 
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
+    <div class="product-pagination">
         <span class="text-muted">
             Hiển thị <?= $startProduct ?>–<?= $endProduct ?> trong <?= number_format($totalProducts) ?> mặt hàng còn tồn
         </span>
@@ -137,6 +141,7 @@ $paginationUrl = $paginationUrl ?? static function ($page) use ($search) {
             </nav>
         <?php endif; ?>
     </div>
+    </section>
 </main>
 
 <?php require __DIR__ . "/../../layouts/admin_footer.php"; ?>

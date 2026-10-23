@@ -67,6 +67,42 @@ $adminPageTitle = $adminNavItems[$adminNavKey]["label"] ?? "Quản trị";
         rel="stylesheet"
         href="<?= BASE_URL ?>assets/css/style.css?v=<?= filemtime(dirname(__DIR__, 3) . '/assets/css/style.css') ?>"
     >
+    <?php if ($adminController === "adminOrder" && $adminAction === "stats"): ?>
+        <link
+            rel="stylesheet"
+            href="<?= BASE_URL ?>assets/css/pages/order-stats.css?v=<?= filemtime(dirname(__DIR__, 3) . '/assets/css/pages/order-stats.css') ?>"
+        >
+    <?php endif; ?>
+    <?php if ($adminController === "adminOrder" && in_array($adminAction, ["index", "show"], true)): ?>
+        <link
+            rel="stylesheet"
+            href="<?= BASE_URL ?>assets/css/pages/order-management.css?v=<?= filemtime(dirname(__DIR__, 3) . '/assets/css/pages/order-management.css') ?>"
+        >
+    <?php endif; ?>
+    <?php if ($adminController === "adminProduct"): ?>
+        <link
+            rel="stylesheet"
+            href="<?= BASE_URL ?>assets/css/pages/product-management.css?v=<?= filemtime(dirname(__DIR__, 3) . '/assets/css/pages/product-management.css') ?>"
+        >
+    <?php endif; ?>
+    <?php if (in_array($adminController, ["adminCategory", "adminBrands"], true)): ?>
+        <link
+            rel="stylesheet"
+            href="<?= BASE_URL ?>assets/css/pages/category-management.css?v=<?= filemtime(dirname(__DIR__, 3) . '/assets/css/pages/category-management.css') ?>"
+        >
+    <?php endif; ?>
+    <?php if ($adminController === "adminUser"): ?>
+        <link
+            rel="stylesheet"
+            href="<?= BASE_URL ?>assets/css/pages/user-management.css?v=<?= filemtime(dirname(__DIR__, 3) . '/assets/css/pages/user-management.css') ?>"
+        >
+    <?php endif; ?>
+    <?php if ($adminController === "adminPost"): ?>
+        <link
+            rel="stylesheet"
+            href="<?= BASE_URL ?>assets/css/pages/post-management.css?v=<?= filemtime(dirname(__DIR__, 3) . '/assets/css/pages/post-management.css') ?>"
+        >
+    <?php endif; ?>
 </head>
 <body class="admin-body">
     <div class="admin-shell">

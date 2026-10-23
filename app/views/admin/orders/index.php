@@ -4,6 +4,9 @@
 $search = $search ?? "";
 $status = $status ?? "";
 $paymentStatus = $paymentStatus ?? "";
+$dateFrom = $dateFrom ?? "";
+$dateTo = $dateTo ?? "";
+$dateError = $dateError ?? "";
 $currentPage = (int) ($currentPage ?? 1);
 $limit = (int) ($limit ?? 10);
 $totalOrders = (int) ($totalOrders ?? 0);
@@ -19,13 +22,15 @@ $startOrder = $totalOrders > 0
 
 $endOrder = min($currentPage * $limit, $totalOrders);
 
-$paginationUrl = function ($page) use ($search, $status, $paymentStatus) {
+$paginationUrl = function ($page) use ($search, $status, $paymentStatus, $dateFrom, $dateTo) {
     return "index.php?" . http_build_query([
         "controller" => "adminOrder",
         "action" => "index",
         "q" => $search,
         "status" => $status,
         "payment_status" => $paymentStatus,
+        "date_from" => $dateFrom,
+        "date_to" => $dateTo,
         "page" => (int) $page
     ]);
 };
@@ -35,14 +40,17 @@ $endPage = min($totalPages, $currentPage + 2);
 $baseUrl = BASE_URL . "index.php?controller=adminOrder";
 ?>
 
-<div class="container py-4">
-    <div class="mb-3">
-        <h2 class="mb-1">Quản lý đơn hàng</h2>
-        <p class="text-muted mb-0">Xem chi tiết, lọc và cập nhật trạng thái đơn hàng.</p>
+<main class="container py-4 order-management">
+    <div class="order-page-header">
+        <div>
+            <span class="order-eyebrow">THEO DÕI KINH DOANH</span>
+            <h1>Quản lý đơn hàng</h1>
+            <p>Xem thông tin, lọc đơn hàng và cập nhật trạng thái xử lý.</p>
+        </div>
+        <a href="<?= BASE_URL ?>index.php?controller=adminOrder&action=stats" class="order-secondary-link">
+            <span aria-hidden="true">▦</span> Thống kê đơn hàng
+        </a>
     </div>
-    <a href="<?= BASE_URL ?>index.php?controller=adminOrder&action=stats" class="btn btn-outline-primary mb-3">
-        Thống kê đơn hàng
-    </a>
 
     <?php if (!empty($_SESSION["admin_success"])): ?>
         <div class="alert alert-success alert-dismissible fade show">
@@ -60,21 +68,28 @@ $baseUrl = BASE_URL . "index.php?controller=adminOrder";
         <?php unset($_SESSION["admin_error"]); ?>
     <?php endif; ?>
 
-    <form method="GET" action="<?= BASE_URL ?>index.php" class="row g-2 mb-3">
+    <?php if ($dateError !== ""): ?>
+        <div class="alert alert-warning" role="alert">
+            <?= htmlspecialchars($dateError, ENT_QUOTES, "UTF-8") ?>
+        </div>
+    <?php endif; ?>
+
+    <form method="GET" action="<?= BASE_URL ?>index.php" class="order-filter-panel">
         <input type="hidden" name="controller" value="adminOrder">
         <input type="hidden" name="action" value="index">
 
-        <div class="col-md-4">
+        <div class="order-search-field">
             <input
                 type="text"
                 name="q"
                 class="form-control"
+                aria-label="Tìm kiếm đơn hàng"
                 placeholder="Mã đơn, tên, SĐT hoặc email..."
                 value="<?= htmlspecialchars($search, ENT_QUOTES, "UTF-8") ?>"
             >
         </div>
 
-        <div class="col-md-3">
+        <div>
             <select name="status" class="form-select">
                 <option value="">Tất cả trạng thái</option>
                 <?php foreach (AdminOrder::STATUSES as $key => $label): ?>
@@ -86,7 +101,7 @@ $baseUrl = BASE_URL . "index.php?controller=adminOrder";
             </select>
         </div>
 
-        <div class="col-md-3">
+        <div>
             <select name="payment_status" class="form-select">
                 <option value="">Tất cả thanh toán</option>
                 <?php foreach (AdminOrder::PAYMENT_STATUSES as $key => $label): ?>
@@ -98,28 +113,57 @@ $baseUrl = BASE_URL . "index.php?controller=adminOrder";
             </select>
         </div>
 
-        <div class="col-md-2 d-flex gap-2">
-            <button type="submit" class="btn btn-primary">Lọc</button>
-            <?php if ($search !== "" || $status !== "" || $paymentStatus !== ""): ?>
-                <a href="<?= htmlspecialchars($baseUrl . '&action=index') ?>" class="btn btn-outline-secondary">
-                    Xóa
+        <div class="order-date-field">
+            <label for="order-date-from">Từ ngày</label>
+            <input
+                type="date"
+                id="order-date-from"
+                name="date_from"
+                class="form-control"
+                value="<?= htmlspecialchars($dateFrom, ENT_QUOTES, "UTF-8") ?>"
+            >
+        </div>
+
+        <div class="order-date-field">
+            <label for="order-date-to">Đến ngày</label>
+            <input
+                type="date"
+                id="order-date-to"
+                name="date_to"
+                class="form-control"
+                value="<?= htmlspecialchars($dateTo, ENT_QUOTES, "UTF-8") ?>"
+            >
+        </div>
+
+        <div class="order-filter-actions">
+            <button type="submit" class="btn btn-primary order-filter-button">Lọc đơn hàng</button>
+            <?php if (
+                $search !== ""
+                || $status !== ""
+                || $paymentStatus !== ""
+                || $dateFrom !== ""
+                || $dateTo !== ""
+            ): ?>
+                <a href="<?= htmlspecialchars($baseUrl . '&action=index') ?>" class="btn btn-outline-secondary order-clear-button">
+                    Xóa lọc
                 </a>
             <?php endif; ?>
         </div>
     </form>
 
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped align-middle">
-            <thead class="table-dark">
+    <section class="order-table-panel" aria-label="Danh sách đơn hàng">
+        <div class="table-responsive">
+            <table class="table align-middle order-table">
+            <thead>
                 <tr>
-                    <th style="width: 80px;">Mã</th>
+                    <th>Mã</th>
                     <th>Khách hàng</th>
                     <th>Điện thoại</th>
                     <th>Tổng tiền</th>
                     <th>Thanh toán</th>
                     <th>Trạng thái</th>
                     <th>Ngày tạo</th>
-                    <th style="width: 110px;">Thao tác</th>
+                    <th>Thao tác</th>
                 </tr>
             </thead>
             <tbody>
@@ -179,7 +223,7 @@ $baseUrl = BASE_URL . "index.php?controller=adminOrder";
                             </td>
                             <td>
                                 <a
-                                    class="btn btn-sm btn-primary"
+                                    class="btn btn-sm order-detail-button"
                                     href="<?= htmlspecialchars($baseUrl . '&action=show&id=' . $itemId, ENT_QUOTES, 'UTF-8') ?>"
                                 >
                                     Chi tiết
@@ -189,10 +233,10 @@ $baseUrl = BASE_URL . "index.php?controller=adminOrder";
                     <?php endforeach; ?>
                 <?php endif; ?>
             </tbody>
-        </table>
-    </div>
+            </table>
+        </div>
 
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
+    <div class="order-pagination">
         <div class="text-muted">
             Hiển thị <?= $startOrder ?>–<?= $endOrder ?>
             trong tổng số <?= $totalOrders ?> đơn hàng
@@ -255,9 +299,10 @@ $baseUrl = BASE_URL . "index.php?controller=adminOrder";
         </nav>
     </div>
 
-    <a href="<?= BASE_URL ?>index.php?controller=admin&action=index" class="btn btn-outline-secondary mt-3">
-        ← Quay lại trang quản trị
+    </section>
+    <a href="<?= BASE_URL ?>index.php?controller=admin&action=index" class="order-back-admin">
+        <span aria-hidden="true">←</span> Quay lại trang quản trị
     </a>
-</div>
+</main>
 
 <?php require __DIR__ . "/../../layouts/admin_footer.php"; ?>

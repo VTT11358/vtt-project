@@ -34,17 +34,19 @@ $startPage = max(1, $currentPage - 2);
 $endPage = min($totalPages, $currentPage + 2);
 ?>
 
-<div class="container py-4">
-
-    <!-- Tiêu đề -->
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-        <h2 class="mb-0">Quản lý sản phẩm</h2>
+<main class="container py-4 product-management">
+    <div class="product-page-header">
+        <div>
+            <span class="product-eyebrow">DANH MỤC KINH DOANH</span>
+            <h1>Quản lý sản phẩm</h1>
+            <p>Quản lý thông tin, giá bán và tình trạng sản phẩm trong cửa hàng.</p>
+        </div>
 
         <a
             href="<?= BASE_URL ?>index.php?controller=adminProduct&action=createProduct"
-            class="btn btn-primary"
+            class="product-primary-link"
         >
-            + Thêm sản phẩm
+            <span aria-hidden="true">＋</span> Thêm sản phẩm
         </a>
     </div>
 
@@ -89,7 +91,7 @@ $endPage = min($totalPages, $currentPage + 2);
     <form
         method="GET"
         action="<?= BASE_URL ?>index.php"
-        class="d-flex flex-wrap gap-2 mb-3"
+        class="product-search-panel"
     >
         <input type="hidden" name="controller" value="adminProduct">
         <input type="hidden" name="action" value="products">
@@ -98,19 +100,19 @@ $endPage = min($totalPages, $currentPage + 2);
             type="text"
             name="q"
             class="form-control"
-            style="max-width: 420px;"
+            aria-label="Tìm kiếm sản phẩm"
             placeholder="Tên sản phẩm, danh mục hoặc thương hiệu..."
             value="<?= htmlspecialchars($search, ENT_QUOTES, "UTF-8") ?>"
         >
 
-        <button type="submit" class="btn btn-primary">
+        <button type="submit" class="btn btn-primary product-search-button">
             Tìm kiếm
         </button>
 
         <?php if ($search !== ""): ?>
             <a
                 href="<?= BASE_URL ?>index.php?controller=adminProduct&action=products"
-                class="btn btn-outline-secondary"
+                class="btn btn-outline-secondary product-clear-search"
             >
                 Xóa tìm kiếm
             </a>
@@ -118,152 +120,151 @@ $endPage = min($totalPages, $currentPage + 2);
     </form>
 
     <!-- Bảng sản phẩm -->
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Ảnh</th>
-                    <th>Tên sản phẩm</th>
-                    <th>Danh mục</th>
-                    <th>Thương hiệu</th>
-                    <th>Giá</th>
-                    <th>Tồn kho</th>
-                    <th>Trạng thái</th>
-                    <th>Thao tác</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                <?php if (empty($products)): ?>
+    <section class="product-table-panel" aria-label="Danh sách sản phẩm">
+        <div class="table-responsive">
+            <table class="table align-middle product-table">
+                <thead>
                     <tr>
-                        <td colspan="9" class="text-center py-4">
-                            <?= $search !== ""
-                                ? "Không tìm thấy sản phẩm phù hợp."
-                                : "Chưa có sản phẩm." ?>
-                        </td>
+                        <th>ID</th>
+                        <th>Ảnh</th>
+                        <th>Tên sản phẩm</th>
+                        <th>Danh mục</th>
+                        <th>Thương hiệu</th>
+                        <th>Giá</th>
+                        <th>Tồn kho</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
                     </tr>
-                <?php else: ?>
+                </thead>
 
-                    <?php foreach ($products as $product): ?>
+                <tbody>
+                    <?php if (empty($products)): ?>
                         <tr>
-                            <td><?= (int) $product["id"] ?></td>
-
-                            <td>
-                                <?php if (!empty($product["image"])): ?>
-                                    <img
-                                        src="<?= htmlspecialchars(productImageUrl($product["image"]), ENT_QUOTES, "UTF-8") ?>"
-                                        alt="Ảnh sản phẩm"
-                                        width="80"
-                                        height="60"
-                                        style="object-fit: contain;"
-                                    >
-                                <?php else: ?>
-                                    Chưa có ảnh
-                                <?php endif; ?>
-                            </td>
-
-                            <td>
-                                <?= htmlspecialchars($product["name"] ?? "", ENT_QUOTES, "UTF-8") ?>
-                            </td>
-
-                            <td>
-                                <?= htmlspecialchars($product["category_name"] ?? "", ENT_QUOTES, "UTF-8") ?>
-                            </td>
-
-                            <td>
-                                <?= htmlspecialchars($product["brand_name"] ?? "", ENT_QUOTES, "UTF-8") ?>
-                            </td>
-
-                            <td>
-                                <?= number_format((float) $product["price"], 0, ",", ".") ?> đ
-
-                                <?php if ($product["sale_price"] !== null): ?>
-                                    <br>
-                                    <small class="text-danger">
-                                        Khuyến mãi:
-                                        <?= number_format((float) $product["sale_price"], 0, ",", ".") ?> đ
-                                    </small>
-                                <?php endif; ?>
-                            </td>
-
-                            <td><?= (int) $product["quantity"] ?></td>
-
-                            <td>
-                                <?php if ((int) $product["is_active"] === 1): ?>
-                                    <span class="badge bg-success">Đang bán</span>
-                                <?php else: ?>
-                                    <span class="badge bg-secondary">Đã ẩn</span>
-                                <?php endif; ?>
-                            </td>
-
-                            <td>
-                                <div class="d-flex flex-wrap gap-2">
-                                    <a
-                                        class="btn btn-sm btn-warning"
-                                        href="<?= BASE_URL ?>index.php?controller=adminProduct&action=editProduct&id=<?= (int) $product["id"] ?>"
-                                    >
-                                        Sửa
-                                    </a>
-
-                                    <form
-                                        method="POST"
-                                        action="<?= BASE_URL ?>index.php?controller=adminProduct&action=deleteProduct"
-                                        onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');"
-                                    >
-                                        <input
-                                            type="hidden"
-                                            name="id"
-                                            value="<?= (int) $product["id"] ?>"
-                                        >
-
-                                        <input
-                                            type="hidden"
-                                            name="csrf_token"
-                                            value="<?= htmlspecialchars($_SESSION["csrf_token"] ?? "", ENT_QUOTES, "UTF-8") ?>"
-                                        >
-
-                                        <button
-                                            type="submit"
-                                            class="btn btn-sm btn-danger"
-                                        >
-                                            Xóa
-                                        </button>
-                                    </form>
-                                </div>
+                            <td colspan="9" class="text-center py-4">
+                                <?= $search !== ""
+                                    ? "Không tìm thấy sản phẩm phù hợp."
+                                    : "Chưa có sản phẩm." ?>
                             </td>
                         </tr>
-                    <?php endforeach; ?>
+                    <?php else: ?>
 
-                <?php endif; ?>
-            </tbody>
-        </table>
-    </div>
+                        <?php foreach ($products as $product): ?>
+                            <tr>
+                                <td><?= (int) $product["id"] ?></td>
 
-    <!-- Thông tin phân trang -->
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
-        <div class="text-muted">
-            Hiển thị <?= $startProduct ?>–<?= $endProduct ?>
-            trong tổng số <?= $totalProducts ?> sản phẩm
+                                <td>
+                                    <?php if (!empty($product["image"])): ?>
+                                        <img
+                                            src="<?= htmlspecialchars(productImageUrl($product["image"]), ENT_QUOTES, "UTF-8") ?>"
+                                            alt="Ảnh sản phẩm"
+                                            width="80"
+                                            height="60"
+                                            class="product-table-image"
+                                        >
+                                    <?php else: ?>
+                                        Chưa có ảnh
+                                    <?php endif; ?>
+                                </td>
+
+                                <td>
+                                    <?= htmlspecialchars($product["name"] ?? "", ENT_QUOTES, "UTF-8") ?>
+                                </td>
+
+                                <td>
+                                    <?= htmlspecialchars($product["category_name"] ?? "", ENT_QUOTES, "UTF-8") ?>
+                                </td>
+
+                                <td>
+                                    <?= htmlspecialchars($product["brand_name"] ?? "", ENT_QUOTES, "UTF-8") ?>
+                                </td>
+
+                                <td>
+                                    <?= number_format((float) $product["price"], 0, ",", ".") ?> đ
+
+                                    <?php if ($product["sale_price"] !== null): ?>
+                                        <br>
+                                        <small class="text-danger">
+                                            Khuyến mãi:
+                                            <?= number_format((float) $product["sale_price"], 0, ",", ".") ?> đ
+                                        </small>
+                                    <?php endif; ?>
+                                </td>
+
+                                <td><?= (int) $product["quantity"] ?></td>
+
+                                <td>
+                                    <?php if ((int) $product["is_active"] === 1): ?>
+                                        <span class="badge bg-success">Đang bán</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-secondary">Đã ẩn</span>
+                                    <?php endif; ?>
+                                </td>
+
+                                <td>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <a
+                                            class="btn btn-sm product-edit-button"
+                                            href="<?= BASE_URL ?>index.php?controller=adminProduct&action=editProduct&id=<?= (int) $product["id"] ?>"
+                                        >
+                                            Sửa
+                                        </a>
+
+                                        <form
+                                            method="POST"
+                                            action="<?= BASE_URL ?>index.php?controller=adminProduct&action=deleteProduct"
+                                            onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');"
+                                        >
+                                            <input
+                                                type="hidden"
+                                                name="id"
+                                                value="<?= (int) $product["id"] ?>"
+                                            >
+
+                                            <input
+                                                type="hidden"
+                                                name="csrf_token"
+                                                value="<?= htmlspecialchars($_SESSION["csrf_token"] ?? "", ENT_QUOTES, "UTF-8") ?>"
+                                            >
+
+                                            <button
+                                                type="submit"
+                                                class="btn btn-sm btn-danger product-delete-button"
+                                            >
+                                                Xóa
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+
+                    <?php endif; ?>
+                </tbody>
+            </table>
         </div>
 
-        <!-- Thanh phân trang -->
-        <nav aria-label="Phân trang sản phẩm">
-            <ul class="pagination mb-0 flex-wrap">
+        <div class="product-pagination">
+            <div class="text-muted">
+                Hiển thị <?= $startProduct ?>–<?= $endProduct ?>
+                trong tổng số <?= $totalProducts ?> sản phẩm
+            </div>
 
-                <!-- Trang trước -->
-                <li class="page-item <?= $currentPage <= 1 ? "disabled" : "" ?>">
-                    <?php if ($currentPage > 1): ?>
-                        <a
-                            class="page-link"
-                            href="<?= htmlspecialchars($paginationUrl($currentPage - 1), ENT_QUOTES, "UTF-8") ?>"
-                        >
-                            &laquo; Trước
-                        </a>
-                    <?php else: ?>
-                        <span class="page-link">&laquo; Trước</span>
-                    <?php endif; ?>
-                </li>
+            <nav aria-label="Phân trang sản phẩm">
+                <ul class="pagination mb-0 flex-wrap">
+
+                    <!-- Trang trước -->
+                    <li class="page-item <?= $currentPage <= 1 ? "disabled" : "" ?>">
+                        <?php if ($currentPage > 1): ?>
+                            <a
+                                class="page-link"
+                                href="<?= htmlspecialchars($paginationUrl($currentPage - 1), ENT_QUOTES, "UTF-8") ?>"
+                            >
+                                &laquo; Trước
+                            </a>
+                        <?php else: ?>
+                            <span class="page-link">&laquo; Trước</span>
+                        <?php endif; ?>
+                    </li>
 
                 <!-- Trang đầu -->
                 <?php if ($startPage > 1): ?>
@@ -328,10 +329,10 @@ $endPage = min($totalPages, $currentPage + 2);
                     <?php endif; ?>
                 </li>
 
-            </ul>
-        </nav>
-    </div>
-
-</div>
+                </ul>
+            </nav>
+        </div>
+    </section>
+</main>
 
 <?php require __DIR__ . "/../../layouts/admin_footer.php"; ?>

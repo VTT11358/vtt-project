@@ -31,15 +31,16 @@ $endPage = min($totalPages, $currentPage + 2);
 $baseUrl = BASE_URL . "index.php?controller=adminPost";
 ?>
 
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+<main class="container py-4 post-management">
+    <div class="post-page-header">
         <div>
-            <h2 class="mb-1">Quản lý bài viết</h2>
-            <p class="text-muted mb-0">Thêm, sửa và xuất bản tin tức / bài viết.</p>
+            <span class="post-eyebrow">NỘI DUNG CỬA HÀNG</span>
+            <h1>Quản lý bài viết</h1>
+            <p>Quản lý tin tức, nội dung và trạng thái xuất bản trên cửa hàng.</p>
         </div>
 
-        <a href="<?= htmlspecialchars($baseUrl . '&action=create') ?>" class="btn btn-primary">
-            + Thêm bài viết
+        <a href="<?= htmlspecialchars($baseUrl . '&action=create') ?>" class="post-primary-link">
+            <span aria-hidden="true">＋</span> Thêm bài viết
         </a>
     </div>
 
@@ -59,7 +60,7 @@ $baseUrl = BASE_URL . "index.php?controller=adminPost";
         <?php unset($_SESSION["admin_error"]); ?>
     <?php endif; ?>
 
-    <form method="GET" action="<?= BASE_URL ?>index.php" class="d-flex flex-wrap gap-2 mb-3">
+    <form method="GET" action="<?= BASE_URL ?>index.php" class="post-search-panel">
         <input type="hidden" name="controller" value="adminPost">
         <input type="hidden" name="action" value="index">
 
@@ -67,31 +68,32 @@ $baseUrl = BASE_URL . "index.php?controller=adminPost";
             type="text"
             name="q"
             class="form-control"
-            style="max-width: 420px;"
+            aria-label="Tìm kiếm bài viết"
             placeholder="Tìm theo tiêu đề, slug hoặc tác giả..."
             value="<?= htmlspecialchars($search, ENT_QUOTES, "UTF-8") ?>"
         >
 
-        <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+        <button type="submit" class="btn btn-primary post-search-button">Tìm kiếm</button>
 
         <?php if ($search !== ""): ?>
-            <a href="<?= htmlspecialchars($baseUrl . '&action=index') ?>" class="btn btn-outline-secondary">
+            <a href="<?= htmlspecialchars($baseUrl . '&action=index') ?>" class="btn btn-outline-secondary post-clear-search">
                 Xóa tìm kiếm
             </a>
         <?php endif; ?>
     </form>
 
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped align-middle">
-            <thead class="table-dark">
+    <section class="post-table-panel" aria-label="Danh sách bài viết">
+        <div class="table-responsive">
+        <table class="table align-middle post-table">
+            <thead>
                 <tr>
-                    <th style="width: 70px;">ID</th>
-                    <th style="width: 90px;">Ảnh</th>
+                    <th>ID</th>
+                    <th>Ảnh</th>
                     <th>Tiêu đề</th>
                     <th>Tác giả</th>
-                    <th style="width: 120px;">Trạng thái</th>
-                    <th style="width: 160px;">Ngày tạo</th>
-                    <th style="width: 180px;">Thao tác</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày tạo</th>
+                    <th>Thao tác</th>
                 </tr>
             </thead>
             <tbody>
@@ -111,8 +113,9 @@ $baseUrl = BASE_URL . "index.php?controller=adminPost";
                                     <img
                                         src="<?= BASE_URL . htmlspecialchars($item["image"], ENT_QUOTES, "UTF-8") ?>"
                                         alt=""
-                                        style="width: 64px; height: 48px; object-fit: cover;"
-                                        class="rounded border"
+                                        width="64"
+                                        height="48"
+                                        class="post-table-image"
                                     >
                                 <?php else: ?>
                                     <span class="text-muted">Không có</span>
@@ -120,7 +123,7 @@ $baseUrl = BASE_URL . "index.php?controller=adminPost";
                             </td>
                             <td>
                                 <strong><?= htmlspecialchars($item["title"] ?? "", ENT_QUOTES, "UTF-8") ?></strong>
-                                <div class="small text-muted">
+                                <div class="small text-muted post-slug">
                                     <?= htmlspecialchars($item["slug"] ?? "", ENT_QUOTES, "UTF-8") ?>
                                 </div>
                             </td>
@@ -144,7 +147,7 @@ $baseUrl = BASE_URL . "index.php?controller=adminPost";
                             <td>
                                 <div class="d-flex gap-2">
                                     <a
-                                        class="btn btn-sm btn-warning"
+                                        class="btn btn-sm post-edit-button"
                                         href="<?= htmlspecialchars($baseUrl . '&action=edit&id=' . $itemId, ENT_QUOTES, 'UTF-8') ?>"
                                     >
                                         Sửa
@@ -161,7 +164,7 @@ $baseUrl = BASE_URL . "index.php?controller=adminPost";
                                             name="csrf_token"
                                             value="<?= htmlspecialchars($_SESSION["csrf_token"] ?? "", ENT_QUOTES, "UTF-8") ?>"
                                         >
-                                        <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                                        <button type="submit" class="btn btn-sm btn-danger post-delete-button">Xóa</button>
                                     </form>
                                 </div>
                             </td>
@@ -170,9 +173,9 @@ $baseUrl = BASE_URL . "index.php?controller=adminPost";
                 <?php endif; ?>
             </tbody>
         </table>
-    </div>
+        </div>
 
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
+    <div class="post-pagination">
         <div class="text-muted">
             Hiển thị <?= $startPost ?>–<?= $endPost ?>
             trong tổng số <?= $totalPosts ?> bài viết
@@ -235,9 +238,10 @@ $baseUrl = BASE_URL . "index.php?controller=adminPost";
         </nav>
     </div>
 
-    <a href="<?= BASE_URL ?>index.php?controller=admin&action=index" class="btn btn-outline-secondary mt-3">
-        ← Quay lại trang quản trị
+    </section>
+    <a href="<?= BASE_URL ?>index.php?controller=admin&action=index" class="post-back-link">
+        <span aria-hidden="true">←</span> Quay lại trang quản trị
     </a>
-</div>
+</main>
 
 <?php require __DIR__ . "/../../layouts/admin_footer.php"; ?>

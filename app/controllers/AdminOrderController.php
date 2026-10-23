@@ -32,6 +32,22 @@ class AdminOrderController
         $search = mb_substr($search, 0, 100);
         $status = trim($_GET["status"] ?? "");
         $paymentStatus = trim($_GET["payment_status"] ?? "");
+        $dateFromInput = $_GET["date_from"] ?? "";
+        $dateToInput = $_GET["date_to"] ?? "";
+        $dateFrom = is_string($dateFromInput) ? trim($dateFromInput) : "";
+        $dateTo = is_string($dateToInput) ? trim($dateToInput) : "";
+        $dateError = "";
+
+        $fromDate = $dateFrom !== "" ? DateTimeImmutable::createFromFormat("!Y-m-d", $dateFrom) : null;
+        $toDate = $dateTo !== "" ? DateTimeImmutable::createFromFormat("!Y-m-d", $dateTo) : null;
+        $validFrom = $dateFrom === "" || ($fromDate && $fromDate->format("Y-m-d") === $dateFrom);
+        $validTo = $dateTo === "" || ($toDate && $toDate->format("Y-m-d") === $dateTo);
+
+        if (!$validFrom || !$validTo || ($fromDate && $toDate && $fromDate > $toDate)) {
+            $dateError = "Khoảng ngày không hợp lệ. Vui lòng chọn ngày bắt đầu trước hoặc bằng ngày kết thúc.";
+            $dateFrom = "";
+            $dateTo = "";
+        }
 
         if ($status !== "" && !isset(AdminOrder::STATUSES[$status])) {
             $status = "";
@@ -44,7 +60,13 @@ class AdminOrderController
         $currentPage = filter_input(INPUT_GET, "page", FILTER_VALIDATE_INT);
         $currentPage = ($currentPage && $currentPage > 0) ? $currentPage : 1;
 
-        $totalOrders = $this->orderModel->getTotalCount($search, $status, $paymentStatus);
+        $totalOrders = $this->orderModel->getTotalCount(
+            $search,
+            $status,
+            $paymentStatus,
+            $dateFrom,
+            $dateTo
+        );
         $totalPages = max(1, (int) ceil($totalOrders / $limit));
         $currentPage = min($currentPage, $totalPages);
         $offset = ($currentPage - 1) * $limit;
@@ -54,7 +76,9 @@ class AdminOrderController
             $offset,
             $search,
             $status,
-            $paymentStatus
+            $paymentStatus,
+            $dateFrom,
+            $dateTo
         );
 
         require __DIR__ . "/../views/admin/orders/index.php";

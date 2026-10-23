@@ -32,15 +32,16 @@ $endPage = min($totalPages, $currentPage + 2);
 $baseUrl = BASE_URL . "index.php?controller=adminUser";
 ?>
 
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+<main class="container py-4 user-management">
+    <div class="user-page-header">
         <div>
-            <h2 class="mb-1">Quản lý người dùng</h2>
-            <p class="text-muted mb-0">Thêm, sửa và khóa tài khoản khách hàng hoặc quản trị viên.</p>
+            <span class="user-eyebrow">TÀI KHOẢN CỬA HÀNG</span>
+            <h1>Quản lý người dùng</h1>
+            <p>Quản lý thông tin, vai trò và trạng thái tài khoản trong cửa hàng.</p>
         </div>
 
-        <a href="<?= htmlspecialchars($baseUrl . '&action=create') ?>" class="btn btn-primary">
-            + Thêm người dùng
+        <a href="<?= htmlspecialchars($baseUrl . '&action=create') ?>" class="user-primary-link">
+            <span aria-hidden="true">＋</span> Thêm người dùng
         </a>
     </div>
 
@@ -60,7 +61,7 @@ $baseUrl = BASE_URL . "index.php?controller=adminUser";
         <?php unset($_SESSION["admin_error"]); ?>
     <?php endif; ?>
 
-    <form method="GET" action="<?= BASE_URL ?>index.php" class="d-flex flex-wrap gap-2 mb-3">
+    <form method="GET" action="<?= BASE_URL ?>index.php" class="user-search-panel">
         <input type="hidden" name="controller" value="adminUser">
         <input type="hidden" name="action" value="index">
 
@@ -68,32 +69,33 @@ $baseUrl = BASE_URL . "index.php?controller=adminUser";
             type="text"
             name="q"
             class="form-control"
-            style="max-width: 420px;"
+            aria-label="Tìm kiếm người dùng"
             placeholder="Tìm theo tên, email hoặc số điện thoại..."
             value="<?= htmlspecialchars($search, ENT_QUOTES, "UTF-8") ?>"
         >
 
-        <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+        <button type="submit" class="btn btn-primary user-search-button">Tìm kiếm</button>
 
         <?php if ($search !== ""): ?>
-            <a href="<?= htmlspecialchars($baseUrl . '&action=index') ?>" class="btn btn-outline-secondary">
+            <a href="<?= htmlspecialchars($baseUrl . '&action=index') ?>" class="btn btn-outline-secondary user-clear-search">
                 Xóa tìm kiếm
             </a>
         <?php endif; ?>
     </form>
 
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped align-middle">
-            <thead class="table-dark">
+    <section class="user-table-panel" aria-label="Danh sách người dùng">
+        <div class="table-responsive">
+        <table class="table align-middle user-table">
+            <thead>
                 <tr>
-                    <th style="width: 70px;">ID</th>
+                    <th>ID</th>
                     <th>Họ tên</th>
                     <th>Email</th>
                     <th>Điện thoại</th>
-                    <th style="width: 130px;">Vai trò</th>
-                    <th style="width: 130px;">Trạng thái</th>
-                    <th style="width: 160px;">Ngày tạo</th>
-                    <th style="width: 180px;">Thao tác</th>
+                    <th>Vai trò</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày tạo</th>
+                    <th>Thao tác</th>
                 </tr>
             </thead>
             <tbody>
@@ -111,16 +113,16 @@ $baseUrl = BASE_URL . "index.php?controller=adminUser";
                             <td>
                                 <strong><?= htmlspecialchars($item["name"] ?? "", ENT_QUOTES, "UTF-8") ?></strong>
                                 <?php if ($itemId === $currentUserId): ?>
-                                    <span class="badge bg-info text-dark ms-1">Bạn</span>
+                                    <span class="badge bg-info user-self-badge">Bạn</span>
                                 <?php endif; ?>
                             </td>
                             <td><?= htmlspecialchars($item["email"] ?? "", ENT_QUOTES, "UTF-8") ?></td>
                             <td><?= htmlspecialchars($item["phone"] ?? "", ENT_QUOTES, "UTF-8") ?></td>
                             <td>
                                 <?php if (($item["role"] ?? "") === "admin"): ?>
-                                    <span class="badge bg-warning text-dark">Quản trị</span>
+                                    <span class="badge bg-warning user-role-admin">Quản trị</span>
                                 <?php else: ?>
-                                    <span class="badge bg-secondary">Khách hàng</span>
+                                    <span class="badge bg-secondary user-role-customer">Khách hàng</span>
                                 <?php endif; ?>
                             </td>
                             <td>
@@ -142,7 +144,7 @@ $baseUrl = BASE_URL . "index.php?controller=adminUser";
                             <td>
                                 <div class="d-flex gap-2">
                                     <a
-                                        class="btn btn-sm btn-warning"
+                                        class="btn btn-sm user-edit-button"
                                         href="<?= htmlspecialchars($baseUrl . '&action=edit&id=' . $itemId, ENT_QUOTES, 'UTF-8') ?>"
                                     >
                                         Sửa
@@ -160,7 +162,7 @@ $baseUrl = BASE_URL . "index.php?controller=adminUser";
                                                 name="csrf_token"
                                                 value="<?= htmlspecialchars($_SESSION["csrf_token"] ?? "", ENT_QUOTES, "UTF-8") ?>"
                                             >
-                                            <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                                            <button type="submit" class="btn btn-sm btn-danger user-delete-button">Xóa</button>
                                         </form>
                                     <?php endif; ?>
                                 </div>
@@ -170,9 +172,9 @@ $baseUrl = BASE_URL . "index.php?controller=adminUser";
                 <?php endif; ?>
             </tbody>
         </table>
-    </div>
+        </div>
 
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
+    <div class="user-pagination">
         <div class="text-muted">
             Hiển thị <?= $startUser ?>–<?= $endUser ?>
             trong tổng số <?= $totalUsers ?> người dùng
@@ -235,9 +237,10 @@ $baseUrl = BASE_URL . "index.php?controller=adminUser";
         </nav>
     </div>
 
-    <a href="<?= BASE_URL ?>index.php?controller=admin&action=index" class="btn btn-outline-secondary mt-3">
-        ← Quay lại trang quản trị
+    </section>
+    <a href="<?= BASE_URL ?>index.php?controller=admin&action=index" class="user-back-link">
+        <span aria-hidden="true">←</span> Quay lại trang quản trị
     </a>
-</div>
+</main>
 
 <?php require __DIR__ . "/../../layouts/admin_footer.php"; ?>

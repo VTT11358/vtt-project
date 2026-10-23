@@ -18,14 +18,21 @@ $currentUserId = (int) ($_SESSION["user"]["id"] ?? 0);
 $isSelf = $isEditing && (int) ($user["id"] ?? 0) === $currentUserId;
 ?>
 
-<div class="container py-4">
-    <div class="mb-4">
-        <h2><?= $isEditing ? "Cập nhật người dùng" : "Thêm người dùng" ?></h2>
-        <p class="text-muted">
-            <?= $isEditing
-                ? "Chỉnh sửa thông tin tài khoản. Để trống mật khẩu nếu không muốn đổi."
-                : "Nhập thông tin tài khoản mới." ?>
-        </p>
+<main class="container py-4 user-management">
+    <div class="user-page-header">
+        <div>
+            <span class="user-eyebrow">TÀI KHOẢN CỬA HÀNG</span>
+            <h1><?= $isEditing ? "Cập nhật người dùng" : "Thêm người dùng" ?></h1>
+            <p>
+                <?= $isEditing
+                    ? "Chỉnh sửa thông tin tài khoản. Để trống mật khẩu nếu không muốn đổi."
+                    : "Nhập thông tin tài khoản mới." ?>
+            </p>
+        </div>
+        <a href="<?= htmlspecialchars($baseUrl . '&action=index', ENT_QUOTES, "UTF-8") ?>"
+           class="user-secondary-link">
+            <span aria-hidden="true">←</span> Quay lại danh sách
+        </a>
     </div>
 
     <?php if (!empty($error)): ?>
@@ -34,9 +41,15 @@ $isSelf = $isEditing && (int) ($user["id"] ?? 0) === $currentUserId;
         </div>
     <?php endif; ?>
 
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <form method="POST" action="<?= htmlspecialchars($formUrl, ENT_QUOTES, "UTF-8") ?>">
+    <section class="user-form-panel">
+        <div class="user-form-intro">
+            <span class="user-form-icon" aria-hidden="true"><?= $isEditing ? "✎" : "＋" ?></span>
+            <div>
+                <h2>Thông tin tài khoản</h2>
+                <p>Quản lý thông tin cá nhân, quyền truy cập và bảo mật.</p>
+            </div>
+        </div>
+        <form class="user-form" method="POST" action="<?= htmlspecialchars($formUrl, ENT_QUOTES, "UTF-8") ?>">
                 <input
                     type="hidden"
                     name="csrf_token"
@@ -107,7 +120,7 @@ $isSelf = $isEditing && (int) ($user["id"] ?? 0) === $currentUserId;
                         </select>
                         <?php if ($isSelf): ?>
                             <input type="hidden" name="role" value="admin">
-                            <div class="form-text">Bạn không thể tự hạ quyền quản trị của mình.</div>
+                            <div class="user-form-help">Bạn không thể tự hạ quyền quản trị của mình.</div>
                         <?php endif; ?>
                     </div>
                     <div class="col-md-6 mb-3">
@@ -118,7 +131,7 @@ $isSelf = $isEditing && (int) ($user["id"] ?? 0) === $currentUserId;
                         </select>
                         <?php if ($isSelf): ?>
                             <input type="hidden" name="status" value="1">
-                            <div class="form-text">Bạn không thể khóa tài khoản đang đăng nhập.</div>
+                            <div class="user-form-help">Bạn không thể khóa tài khoản đang đăng nhập.</div>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -137,9 +150,9 @@ $isSelf = $isEditing && (int) ($user["id"] ?? 0) === $currentUserId;
                             <?= $isEditing ? "" : "required" ?>
                         >
                         <?php if ($isEditing): ?>
-                            <div class="form-text">Để trống nếu không muốn đổi mật khẩu.</div>
+                            <div class="user-form-help">Để trống nếu không muốn đổi mật khẩu.</div>
                         <?php else: ?>
-                            <div class="form-text">Tối thiểu 8 ký tự.</div>
+                            <div class="user-form-help">Tối thiểu 8 ký tự.</div>
                         <?php endif; ?>
                     </div>
                     <div class="col-md-6 mb-3">
@@ -157,16 +170,17 @@ $isSelf = $isEditing && (int) ($user["id"] ?? 0) === $currentUserId;
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary">
-                    <?= $isEditing ? "Lưu thay đổi" : "Thêm người dùng" ?>
-                </button>
+                <div class="user-form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <?= $isEditing ? "Lưu thay đổi" : "Thêm người dùng" ?>
+                    </button>
 
-                <a href="<?= htmlspecialchars($baseUrl . '&action=index') ?>" class="btn btn-secondary">
-                    Hủy
-                </a>
-            </form>
-        </div>
-    </div>
-</div>
+                    <a href="<?= htmlspecialchars($baseUrl . '&action=index') ?>" class="btn btn-secondary user-cancel-button">
+                        Hủy
+                    </a>
+                </div>
+        </form>
+    </section>
+</main>
 
 <?php require __DIR__ . "/../../layouts/admin_footer.php"; ?>

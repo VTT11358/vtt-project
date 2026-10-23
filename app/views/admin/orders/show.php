@@ -13,11 +13,12 @@ $isCancelled = $orderStatus === "cancelled";
 $isCompleted = $orderStatus === "completed";
 ?>
 
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+<main class="container py-4 order-management">
+    <div class="order-page-header">
         <div>
-            <h2 class="mb-1">Đơn hàng #<?= $orderId ?></h2>
-            <p class="text-muted mb-0">
+            <span class="order-eyebrow">CHI TIẾT ĐƠN HÀNG</span>
+            <h1>Đơn hàng #<?= $orderId ?></h1>
+            <p>
                 Tạo lúc
                 <?= htmlspecialchars(
                     !empty($order["created_at"])
@@ -29,8 +30,8 @@ $isCompleted = $orderStatus === "completed";
             </p>
         </div>
 
-        <a href="<?= htmlspecialchars($baseUrl . '&action=index') ?>" class="btn btn-outline-secondary">
-            ← Danh sách đơn hàng
+        <a href="<?= htmlspecialchars($baseUrl . '&action=index') ?>" class="order-secondary-link">
+            <span aria-hidden="true">←</span> Danh sách đơn hàng
         </a>
     </div>
 
@@ -50,11 +51,11 @@ $isCompleted = $orderStatus === "completed";
         <?php unset($_SESSION["admin_error"]); ?>
     <?php endif; ?>
 
-    <div class="row g-3 mb-3">
+    <div class="row g-3 mb-3 order-summary-grid">
         <div class="col-lg-6">
-            <div class="card shadow-sm h-100">
+            <section class="card h-100 order-detail-panel">
                 <div class="card-body">
-                    <h5 class="card-title">Thông tin khách hàng</h5>
+                    <h2 class="order-panel-title">Thông tin khách hàng</h2>
                     <p class="mb-1">
                         <strong><?= htmlspecialchars($order["customer_name"] ?? "", ENT_QUOTES, "UTF-8") ?></strong>
                     </p>
@@ -77,13 +78,13 @@ $isCompleted = $orderStatus === "completed";
                         </p>
                     <?php endif; ?>
                 </div>
-            </div>
+            </section>
         </div>
 
         <div class="col-lg-6">
-            <div class="card shadow-sm h-100">
+            <section class="card h-100 order-detail-panel">
                 <div class="card-body">
-                    <h5 class="card-title">Trạng thái đơn hàng</h5>
+                    <h2 class="order-panel-title">Trạng thái đơn hàng</h2>
                     <p class="mb-2">
                         Đơn hàng:
                         <span class="badge <?= AdminOrder::statusBadge($orderStatus) ?>">
@@ -109,7 +110,7 @@ $isCompleted = $orderStatus === "completed";
                         <form
                             method="POST"
                             action="<?= htmlspecialchars($baseUrl . '&action=updateStatus', ENT_QUOTES, 'UTF-8') ?>"
-                            class="row g-2 mb-3"
+                            class="row g-2 mb-3 order-status-form"
                         >
                             <input type="hidden" name="id" value="<?= $orderId ?>">
                             <input
@@ -139,7 +140,7 @@ $isCompleted = $orderStatus === "completed";
                         <form
                             method="POST"
                             action="<?= htmlspecialchars($baseUrl . '&action=updatePayment', ENT_QUOTES, 'UTF-8') ?>"
-                            class="row g-2"
+                            class="row g-2 order-status-form"
                         >
                             <input type="hidden" name="id" value="<?= $orderId ?>">
                             <input
@@ -164,15 +165,15 @@ $isCompleted = $orderStatus === "completed";
                         </form>
                     <?php endif; ?>
                 </div>
-            </div>
+            </section>
         </div>
     </div>
 
-    <div class="card shadow-sm mb-3">
+    <section class="card mb-3 order-detail-panel">
         <div class="card-body">
-            <h5 class="card-title">Sản phẩm trong đơn</h5>
+            <h2 class="order-panel-title">Sản phẩm trong đơn</h2>
             <div class="table-responsive">
-                <table class="table table-bordered align-middle mb-0">
+                <table class="table align-middle mb-0 order-table order-items-table">
                     <thead class="table-light">
                         <tr>
                             <th>Sản phẩm</th>
@@ -195,8 +196,7 @@ $isCompleted = $orderStatus === "completed";
                                                 <img
                                                     src="<?= BASE_URL . htmlspecialchars($item["product_image"], ENT_QUOTES, "UTF-8") ?>"
                                                     alt=""
-                                                    style="width: 48px; height: 48px; object-fit: cover;"
-                                                    class="rounded border"
+                                                    class="order-product-image"
                                                 >
                                             <?php endif; ?>
                                             <div>
@@ -227,14 +227,14 @@ $isCompleted = $orderStatus === "completed";
                 </table>
             </div>
         </div>
-    </div>
+    </section>
 
     <?php if (!empty($payments)): ?>
-        <div class="card shadow-sm mb-3">
+        <section class="card mb-3 order-detail-panel">
             <div class="card-body">
-                <h5 class="card-title">Lịch sử thanh toán</h5>
+                <h2 class="order-panel-title">Lịch sử thanh toán</h2>
                 <div class="table-responsive">
-                    <table class="table table-sm table-bordered mb-0">
+                    <table class="table mb-0 order-table">
                         <thead class="table-light">
                             <tr>
                                 <th>Mã giao dịch</th>
@@ -284,8 +284,8 @@ $isCompleted = $orderStatus === "completed";
                     </table>
                 </div>
             </div>
-        </div>
+        </section>
     <?php endif; ?>
-</div>
+</main>
 
 <?php require __DIR__ . "/../../layouts/admin_footer.php"; ?>
